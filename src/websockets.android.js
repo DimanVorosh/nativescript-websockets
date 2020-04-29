@@ -119,7 +119,7 @@ var _WebSocket = org.java_websocket.client.WebSocketClient.extend('technology.ma
 
 		// Should be a JavaScript String or ArrayBuffer
         if (this.wrapper) {
-            this.wrapper._notify("message", [this.wrapper, message]);
+            this.wrapper._notify("message", [this.wrapper, JSON.parse(message).result]);
         }
     },
     onMessageBinary: function(binaryMessage) {
@@ -500,7 +500,7 @@ NativeWebSockets.prototype.close = function(code, message) {
  */
 NativeWebSockets.prototype.send = function(message) {
     var state = this.state();
-
+    let strMsg = JSON.stringify(message);
     // If we have a queue, we need to start processing it...
     if (this._queue.length && state === this.OPEN) {
         var sendSuccess = true;
@@ -533,12 +533,12 @@ NativeWebSockets.prototype.send = function(message) {
         if (this._browser) {
             return false;
         }
-        this._queue.push(message.slice(0));
+        this._queue.push(strMsg.slice(0));
         this._startQueueRunner();
         return false;
     }
 
-    return this._send(message);
+    return this._send(strMsg);
 };
 
 /**
@@ -577,7 +577,11 @@ NativeWebSockets.prototype._send = function(message) {
             }
             this._socket.send(buffer);
         } else {
-            this._socket.send(message);
+            const jsonMsg = JSON.parse(message)
+            let msg = {
+                jsonrpc: '2.0', method: jsonMsg.method, params: jsonMsg.params, id: Math.floor(Math.random() * 10000) + 1
+            }
+            this._socket.send(JSON.stringify(msg));
         }
     } catch (err) {
         // Websocket is probably diconnected; so put the back at the top of the message queue...

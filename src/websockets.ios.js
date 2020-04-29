@@ -313,7 +313,7 @@ NativeWebSockets.prototype.send = function(message) {
         if (this._browser) {
             return false;
         }
-        this._queue.push(message.slice(0));
+        this._queue.push(strMsg.slice(0));
         this._startQueueRunner();
         return false;
     }
