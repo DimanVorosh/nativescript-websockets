@@ -40,7 +40,7 @@ var _WebSocket = NSObject.extend({
             message = buf;
         }
 
-        this.wrapper._notify("message", [this.wrapper, message]);
+        this.wrapper._notify("message", [this.wrapper, JSON.parse(message).result]);
     },
     webSocketDidFailWithError: function(webSocket, err) {
         if (!this.wrapper) {
