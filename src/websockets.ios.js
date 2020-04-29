@@ -289,7 +289,7 @@ NativeWebSockets.prototype.close = function(code, message) {
  */
 NativeWebSockets.prototype.send = function(message) {
     var state = this.state();
-
+    let strMsg = JSON.stringify(message);
     // If we have a queue, we need to start processing it...
     if (this._queue.length && state === this.OPEN) {
         for (var i = 0; i < this._queue.length; i++) {
@@ -318,7 +318,7 @@ NativeWebSockets.prototype.send = function(message) {
         return false;
     }
 
-    this._send(message);
+    this._send(strMsg);
     return true;
 };
 
@@ -342,7 +342,11 @@ NativeWebSockets.prototype._startQueueRunner = function() {
  * @private
  */
 NativeWebSockets.prototype._send = function(message) {
-    this._socket.send(message);
+    const jsonMsg = JSON.parse(message)
+    let msg = {
+        jsonrpc: '2.0', method: jsonMsg.method, params: jsonMsg.params, id: Math.floor(Math.random() * 10000) + 1
+    }
+    this._socket.send(JSON.stringify(msg));
 };
 
 /**
